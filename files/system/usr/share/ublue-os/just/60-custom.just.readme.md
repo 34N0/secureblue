@@ -62,6 +62,22 @@
 
 `mitigations=auto,nosmt` 
 
+**Turn on spectre_v2 mitigations at boot time for all programs**
+
+`spectre_v2=on` 
+
+**Disable spec store bypass for all programs**
+
+`spec_store_bypass_disable=on`
+
+**Enable the mechanism to flush the L1D cache on context switch.**
+
+`l1d_flush=on`
+
+**Mitigate unprivileged speculative access to data by using the microcode mitigation when available or by disabling AVX on affected systems where the microcode hasn’t been updated to include the mitigation.**
+
+`gather_data_sampling=force`
+
 ## Included in set-kargs-hardening-unstable
 
 **Fill IOMMU protection gap by setting the busmaster bit during early boot**

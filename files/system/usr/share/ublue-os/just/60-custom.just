@@ -18,7 +18,11 @@ set-kargs-hardening:
       --append-if-missing="iommu.strict=1" \
       --append-if-missing="pti=on" \
       --append-if-missing="module.sig_enforce=1" \
-      --append-if-missing="mitigations=auto,nosmt"
+      --append-if-missing="mitigations=auto,nosmt" \
+      --append-if-missing="spectre_v2=on" \
+      --append-if-missing="spec_store_bypass_disable=on" \
+      --append-if-missing="l1d_flush=on" \
+      --append-if-missing="gather_data_sampling=force"
     echo "Hardening kargs set."
 
 # Add additional (unstable) boot parameters for hardening (requires reboot)
@@ -53,17 +57,19 @@ remove-kargs-hardening:
       --delete-if-present="module.sig_enforce=1" \
       --delete-if-present="mitigations=auto,nosmt" \
       --delete-if-present="efi=disable_early_pci_dma" \
-      --delete-if-present="debugfs=off"
+      --delete-if-present="debugfs=off" \
+      --delete-if-present="spectre_v2=on" \
+      --delete-if-present="spec_store_bypass_disable=on" \
+      --delete-if-present="l1d_flush=on" \
+      --delete-if-present="gather_data_sampling=force"
     echo "Hardening kargs removed."
 
 # Harden flatpaks by preloading hardened_malloc (highest supported hwcap)
 harden-flatpak:
     #!/usr/bin/bash
     flatpak override --user --filesystem=host-os:ro
-#   `ld-linux-x86-64.so.2 --help` prints ld.so linker info, including detected hwcaps support. Grep those, then use cut and substring selection (:0:1) to isolate the 1st character after 'v', which will be 4, 3, or 2, corresponding to the system's highest supported hwcap. On x86_64-v1 systems, grep finds no matches, leaving our variables empty.
     uarches="$(/usr/lib64/ld-linux-x86-64.so.2 --help | grep '(supported, searched)' | cut -d'v' -f2)"
     bestuarch="${uarches:0:1}"
-#   If bestuarch is empty, set LD_PRELOAD to the x86-64-v1 arch. If not empty, set LD_PRELOAD to the supported hwcap in $bestuarch.
     if [ -z "$bestuarch" ] ; then
         echo "No microarchitecture support detected. Using default x86-64-v1 architecture."
         flatpak override --user --env=LD_PRELOAD=/var/run/host/usr/lib64/libhardened_malloc.so
@@ -162,13 +168,8 @@ setup-usbguard:
     sudo chmod 755 /etc/usbguard
     sudo sh -c 'usbguard generate-policy > /etc/usbguard/rules.conf'
     sudo systemctl enable --now usbguard.service
-    sudo systemctl enable --now usbguard-dbus.service
     sudo usbguard add-user $(whoami)
     systemctl enable --user --now usbguard-notifier.service
-    if command -v gsettings &> /dev/null; then
-        gsettings set org.gnome.desktop.privacy usb-protection-level always
-        gsettings set org.gnome.desktop.privacy usb-protection true
-    fi
 
 # Rerun Yafti
 rerun-yafti:
@@ -198,6 +199,7 @@ toggle-gnome-jit-js:
     	echo "JIT JavaScript for Gnome and WebkitGTK has been enabled."
     else
     	sudo cp /usr$ENV_FILE $ENV_FILE
+        sudo chmod 644 $ENV_FILE
     	echo "JIT JavaScript for Gnome and WebkitGTK has been disabled."
     fi
 
@@ -225,6 +227,7 @@ toggle-xwayland ACTION="prompt":
         echo "Xwayland for GNOME has been enabled."
       else
         sudo cp /usr$GNOME_XWAYLAND_FILE $GNOME_XWAYLAND_FILE
+        sudo chmod 644 $GNOME_XWAYLAND_FILE
         echo "Xwayland for GNOME has been disabled."
       fi
     elif [ "$OPTION" == "KDE Plasma" ] || [ "${OPTION,,}" == "plasma" ]; then
@@ -234,6 +237,7 @@ toggle-xwayland ACTION="prompt":
         echo "Xwayland for KDE Plasma has been enabled."
       else
         sudo cp /usr$PLASMA_XWAYLAND_FILE $PLASMA_XWAYLAND_FILE
+        sudo chmod 644 $PLASMA_XWAYLAND_FILE
         echo "Xwayland for KDE Plasma has been disabled."
       fi
     elif [ "$OPTION" == "Sway" ] || [ "${OPTION,,}" == "sway" ]; then
@@ -243,6 +247,7 @@ toggle-xwayland ACTION="prompt":
         echo "Xwayland for Sway has been enabled."
       else
         sudo cp /usr$SWAY_XWAYLAND_FILE $SWAY_XWAYLAND_FILE
+        sudo chmod 644 $SWAY_XWAYLAND_FILE
         echo "Xwayland for Sway has been disabled."
       fi
     fi
