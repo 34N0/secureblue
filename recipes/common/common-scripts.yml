@@ -3,10 +3,8 @@ scripts:
   - authselect.sh
   - setfilepermissions.sh
   - disablesealertpopups.sh
-  - homebrewanalyticsoptout.sh
-  - hardencontainerpolicy.sh
   - httpsmirrors.sh
   - createmissingdirectories.sh
   - removesuid.sh
   - disablegeoclue.sh
-  - removechsh.sh
+  - addjustconfig.sh

@@ -23,19 +23,19 @@ secureblue applies hardening with the following goals in mind:
 
 The following are not in scope:
 - Anything that sacrifices security for "privacy". Fedora is already sufficiently private and "privacy" often serves as a euphemism for security theater. This is especially true when at odds with improving security.
-- Anything related to "degoogling" chromium. For example, we will not be replacing chromium with Brave or ungoogled-chromium. Both of them make changes that sacrifice security for "privacy", such as enabling MV2.
+- Anything related to "degoogling" chromium. For example, we will not be replacing hardened-chromium with Brave or ungoogled-chromium. Both of them make changes that sacrifice security for "privacy", such as enabling MV2. <sup>[why?](https://developer.chrome.com/docs/extensions/develop/migrate/improve-security)</sup>
 
 # Hardening
 
 - Installing and enabling [hardened_malloc](https://github.com/GrapheneOS/hardened_malloc) globally, including for flatpaks. <sup>[Thanks to rusty-snake's hardened_malloc spec](https://github.com/rusty-snake/fedora-extras)</sup>
 - Installing [hardened-chromium](https://github.com/secureblue/hardened-chromium), which is inspired by and incorporates patches from [Vanadium](https://github.com/GrapheneOS/Vanadium). <sup>[Why chromium?](https://grapheneos.org/usage#web-browsing)</sup> <sup>[Why not flatpak chromium?](https://forum.vivaldi.net/post/669805)</sup>
-- Setting numerous hardened sysctl values <sup>[details](https://github.com/secureblue/secureblue/blob/live/files/system/usr/etc/sysctl.d/hardening.conf)</sup>
+- Setting numerous hardened sysctl values <sup>[details](https://github.com/secureblue/secureblue/blob/live/files/system/etc/sysctl.d/hardening.conf)</sup>
 - Disabling coredumps in limits.conf
 - Disabling all ports and services for firewalld
 - Adds per-network MAC randomization
-- Blacklisting numerous unused kernel modules to reduce attack surface <sup>[details](https://github.com/secureblue/secureblue/blob/live/files/system/usr/etc/modprobe.d/blacklist.conf)</sup>
+- Blacklisting numerous unused kernel modules to reduce attack surface <sup>[details](https://github.com/secureblue/secureblue/blob/live/files/system/etc/modprobe.d/blacklist.conf)</sup>
 - Enabling only the [flathub-verified](https://flathub.org/apps/collection/verified/1) remote by default
-- Sets numerous hardening kernel arguments (Inspired by [Madaidan's Hardening Guide](https://madaidans-insecurities.github.io/guides/linux-hardening.html)) <sup>[details](https://github.com/secureblue/secureblue/blob/live/files/system/usr/share/ublue-os/just/60-custom.just.readme.md)</sup>
+- Sets numerous hardening kernel arguments (Inspired by [Madaidan's Hardening Guide](https://madaidans-insecurities.github.io/guides/linux-hardening.html)) <sup>[details](https://github.com/secureblue/secureblue/blob/live/files/system/usr/share/ublue-os/just/70-secureblue.just.readme.md)</sup>
 - Reduce the sudo timeout to 1 minute
 - Require wheel user authentication via polkit for `rpm-ostree install` <sup>[why?](https://github.com/rohanssrao/silverblue-privesc)
 - Brute force protection by locking user accounts for 24 hours after 50 failed login attempts, hardened password encryption and password quality suggestions
@@ -44,10 +44,14 @@ The following are not in scope:
 - Set opportunistic DNSSEC and DNSOverTLS for systemd-resolved
 - Configure chronyd to use Network Time Security (NTS) <sup>[using chrony config from GrapheneOS](https://github.com/GrapheneOS/infrastructure/blob/main/chrony.conf)</sup>
 - Disable KDE GHNS by default <sup>[why?](https://blog.davidedmundson.co.uk/blog/kde-store-content/)</sup>
+- Disable install & usage of GNOME user extensions by default
 - Use HTTPS for all rpm mirrors
 - Set all default container policies to `reject`, `signedBy`, or `sigstoreSigned`
 - Remove SUID-root from [numerous binaries](https://github.com/secureblue/secureblue/blob/live/files/scripts/removesuid.sh) and replace functionality [using capabilities](https://github.com/secureblue/secureblue/blob/live/files/system/usr/bin/setcapsforunsuidbinaries)
 - Disable Xwayland by default (for GNOME, Plasma, and Sway images)
+- Mitigation of [LD_PRELOAD attacks](https://github.com/Aishou/wayland-keylogger) via `ujust toggle-bash-environment-lockdown`
+- Disable a variety of services by default (including cups, geoclue, passim, and others)
+- Removal of the unmaintained and suid-root fuse2 by default
 - (Non-userns variants) Disabling unprivileged user namespaces
 - (Non-userns variants) Replacing bubblewrap with bubblewrap-suid so flatpak can be used without unprivileged user namespaces
 
@@ -106,12 +110,6 @@ While it's recommended to use a Fedora Atomic iso to install and then rebase tha
 ### Recommended <sup>[why?](RECOMMENDED.md)</sup>
 - `silverblue-main-hardened`
 - `silverblue-nvidia-hardened`
-- `bluefin-main-hardened`
-- `bluefin-nvidia-hardened`
-- `bluefin-dx-main-userns-hardened`
-- `bluefin-dx-nvidia-userns-hardened`
-- `bluefin-main-userns-hardened`
-- `bluefin-nvidia-userns-hardened`
 - `silverblue-main-userns-hardened`
 - `silverblue-nvidia-userns-hardened`
 ### Stable
@@ -129,11 +127,13 @@ While it's recommended to use a Fedora Atomic iso to install and then rebase tha
 - `aurora-dx-nvidia-userns-hardened`
 - `sericea-main-userns-hardened`
 - `sericea-nvidia-userns-hardened`
-### Experimental
-- `cinnamon-main-hardened`
-- `cinnamon-nvidia-hardened`
-- `cosmic-main-hardened`
-- `cosmic-nvidia-hardened`
+- `bluefin-main-hardened`
+- `bluefin-nvidia-hardened`
+- `bluefin-dx-main-userns-hardened`
+- `bluefin-dx-nvidia-userns-hardened`
+- `bluefin-main-userns-hardened`
+- `bluefin-nvidia-userns-hardened`
+### Beta
 - `wayblue-wayfire-main-hardened`
 - `wayblue-wayfire-nvidia-hardened`
 - `wayblue-hyprland-main-hardened`
@@ -142,10 +142,6 @@ While it's recommended to use a Fedora Atomic iso to install and then rebase tha
 - `wayblue-river-nvidia-hardened`
 - `wayblue-sway-main-hardened`
 - `wayblue-sway-nvidia-hardened`
-- `cinnamon-main-userns-hardened`
-- `cinnamon-nvidia-userns-hardened`
-- `cosmic-main-userns-hardened`
-- `cosmic-nvidia-userns-hardened`
 - `wayblue-wayfire-main-userns-hardened`
 - `wayblue-wayfire-nvidia-userns-hardened`
 - `wayblue-hyprland-main-userns-hardened`
@@ -154,6 +150,15 @@ While it's recommended to use a Fedora Atomic iso to install and then rebase tha
 - `wayblue-river-nvidia-userns-hardened`
 - `wayblue-sway-main-userns-hardened`
 - `wayblue-sway-nvidia-userns-hardened`
+### Experimental
+- `cinnamon-main-hardened`
+- `cinnamon-nvidia-hardened`
+- `cinnamon-main-userns-hardened`
+- `cinnamon-nvidia-userns-hardened`
+- `cosmic-main-hardened`
+- `cosmic-nvidia-hardened`
+- `cosmic-main-userns-hardened`
+- `cosmic-nvidia-userns-hardened`
 ### Asus <sup>[source](https://github.com/ublue-os/hwe/tree/main/asus)</sup>
 - `silverblue-asus-hardened`
 - `silverblue-asus-nvidia-hardened`
@@ -177,14 +182,14 @@ While it's recommended to use a Fedora Atomic iso to install and then rebase tha
 - `aurora-dx-surface-userns-hardened`
 - `aurora-dx-surface-nvidia-userns-hardened`
 ## Server
-- `server-main-hardened`
-- `server-nvidia-hardened`
-- `server-zfs-main-hardened`
-- `server-zfs-nvidia-hardened`
-- `server-main-userns-hardened`
-- `server-nvidia-userns-hardened`
-- `server-zfs-main-userns-hardened`
-- `server-zfs-nvidia-userns-hardened`
+- `securecore-main-hardened`
+- `securecore-nvidia-hardened`
+- `securecore-zfs-main-hardened`
+- `securecore-zfs-nvidia-hardened`
+- `securecore-main-userns-hardened`
+- `securecore-nvidia-userns-hardened`
+- `securecore-zfs-main-userns-hardened`
+- `securecore-zfs-nvidia-userns-hardened`
   
 # Post-install
 

@@ -3,4 +3,6 @@
 # Tell build process to exit if there are any errors.
 set -oue pipefail
 
-rm /usr/bin/chsh
+echo "Disabling sshd"
+systemctl disable sshd
+systemctl mask sshd

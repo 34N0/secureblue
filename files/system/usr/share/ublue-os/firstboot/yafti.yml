@@ -1,6 +1,6 @@
 title: Welcome to secureblue!
 properties:
-  mode: "run-on-change"
+  mode: "run-once"
 screens:
   first-screen:
     source: yafti.screen.title
@@ -65,7 +65,6 @@ screens:
             - Photos (Organizer): org.gnome.Photos
             - Sushi (Nautilus Previewer): org.gnome.NautilusPreviewer
             - Text Editor: org.gnome.TextEditor
-            - Videos (Player): org.gnome.Totem
             - Weather: org.gnome.Weather
 
         Core KDE Plasma Apps:
@@ -83,10 +82,10 @@ screens:
   final-screen:
     source: yafti.screen.title
     values:
-      title: "All done!"
+      title: "Yafti run complete!"
       icon: "/path/to/icon"
       links:
-        - "Website":
-            run: /usr/bin/xdg-open https://github.com/secureblue/secureblue
+        - "POSTINSTALL-README":
+            run: /usr/bin/xdg-open https://github.com/secureblue/secureblue/blob/live/POSTINSTALL-README.md
       description: |
-        Thanks for trying secureblue, we hope you enjoy it!
+        Complete your secureblue installation by following the POSTINSTALL-README.

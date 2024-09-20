@@ -4,7 +4,7 @@ description: "Kinoite asus with some hardening applied"
 
 base-image: ghcr.io/ublue-os/kinoite-asus
 
-image-version: 40 # latest is also supported if you want new updates ASAP
+image-version: 40 
 
 # module configuration, executed in order
 # you can include multiple instances of the same module
@@ -12,7 +12,8 @@ modules:
   - from-file: common/initialization-scripts.yml
   - from-file: common/kinoite-packages.yml
   - from-file: common/gui-packages.yml
-  - from-file: common/common-packages.yml
+  - from-file: common/common-packages.yml 
+  - from-file: common/non-cosmic-scripts.yml
   - from-file: common/disableuserns-packages.yml
   - from-file: common/remove-firefox.yml
   - from-file: common/gui-scripts.yml
@@ -21,4 +22,5 @@ modules:
   - from-file: common/disableuserns-scripts.yml
   - from-file: common/kinoite-files.yml
   - type: secureblue-signing
-  - type: yafti 
+  - type: yafti
+  - from-file: common/common-brew.yml

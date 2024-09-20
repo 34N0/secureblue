@@ -1,6 +1,10 @@
 # secureblue
 
-After rebasing to secureblue, the following steps are recommended.
+After rebasing to secureblue, follow the following steps in order.
+
+## Subscribe to secureblue release notifications
+
+[FAQ](https://github.com/secureblue/secureblue/blob/live/FAQ.md#how-do-i-get-notified-of-secureblue-changes)
 
 ## Nvidia
 If you are using an nvidia image, run this after installation:
@@ -36,6 +40,10 @@ Documentation is available [here](https://github.com/secureblue/secureblue/blob/
 *Can cause issues on some hardware, but stable on other hardware*
 
 ```ujust set-kargs-hardening-unstable```
+
+## Install Homebrew
+
+`ujust brew`
 
 ## Setup USBGuard
 
@@ -83,6 +91,19 @@ When using a non-wheel user, you can add the user to other groups if you want. F
 - use libvirt: `libvirt`
 - use `adb` and `fastboot`: `plugdev`
 - use systemwide flatpaks: `flatpak`
+
+
+## Bash environment lockdown
+
+To mitigate [LD_PRELOAD attacks](https://github.com/Aishou/wayland-keylogger), run:
+
+`ujust toggle-bash-environment-lockdown`
+
+## LUKS TPM2 Unlock
+
+To enable TPM2 LUKS unlocking (do not use this if you have an AMD CPU), run:
+
+`ujust setup-luks-tpm-unlock` and type `Y` when asked if you want to set a PIN.
 
 ## Chromium extension
 
